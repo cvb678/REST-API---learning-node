@@ -122,19 +122,25 @@ app.get('/:id', function (req, res) {
        res.end( JSON.stringify(user));
    });
 })
-
-app.delete('/deleteUser', function (req, regis) {
-
-   // First read existing users.
-   fs.readFile( __dirname + "/public/" + "users.json", 'utf8', function (err, data) {
-       data = JSON.parse( data );
-       delete data["user" + 2];
-       
-       console.log( data );
-       res.end( JSON.stringify(data));
-   });
-})
 */
+app.get('/deleteAll', function (req, res) {
+   // First read existing users.
+	MongoClient.connect(url, function(err, db) {
+		assert.equal(null, err);
+		console.log("Connected successfully to db");
+		var collection = db.collection('documents');
+	        collection.remove({}, {safe: true}, function(err, result) {
+			if(err) {
+				console.log(err);
+				throw err;
+			}
+			console.log(result);
+		});
+       });
+
+	res.end("Deleted all records");
+})
+
 
 var server = app.listen(8081, function () {
 
