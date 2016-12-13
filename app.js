@@ -61,12 +61,12 @@ var insertDocuments = function(db, callback) {
   var collection = db.collection('documents');
   // Insert some documents
   collection.insertMany([
-    {a : 1}, {a : 2}, {a : 3}
+    {czujnik : 1, czas: "21/09/2016 21:33:55"}, {czujnik : 2, czas: "21/09/2016 22:50:13"}, {czujnik : 3, czas: "23/10/2016 15:33:55", czujnik : 4, czas: "21/11/2016 13:33:55"}, {czujnik : 5, czas: "25/12/2016 11:50:13"}, {czujnik : 6, czas: "26/12/2016 15:33:55"}
   ], function(err, result) {
     assert.equal(err, null);
-    assert.equal(3, result.result.n);
-    assert.equal(3, result.ops.length);
-    console.log("Inserted 3 documents into the collection");
+    assert.equal(5, result.result.n);
+    assert.equal(5, result.ops.length);
+    console.log("Inserted 6 documents into the collection");
     callback(result);
   })
 }
