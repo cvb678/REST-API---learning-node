@@ -94,7 +94,7 @@ app.get('/', function (req, res) {
   //});    res.end( data );
    });
 })
-
+/*
 app.post('/addUser', function (req, res) {
    // First read existing users.
    fs.readFile( __dirname + "/public/" + "users.json", 'utf8', function (err, data) {
@@ -127,7 +127,7 @@ app.delete('/deleteUser', function (req, res) {
        res.end( JSON.stringify(data));
    });
 })
-
+*/
 
 var server = app.listen(8081, function () {
 
