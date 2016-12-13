@@ -6,20 +6,6 @@ var app = express();
 var url = 'mongodb://localhost:27017/myproject';
 var documents;
 
-var insertDocuments = function(db, callback) {
-  // Get the documents collection
-  var collection = db.collection('documents');
-  // Insert some documents
-  collection.insertMany([
-    {a : 1}, {a : 2}, {a : 3}
-  ], function(err, result) {
-    assert.equal(err, null);
-    assert.equal(3, result.result.n);
-    assert.equal(3, result.ops.length);
-    console.log("Inserted 3 documents into the collection");
-    callback(result);
-  })
-}
 
 var findDocuments =  function(db, callback) {
   // Get the documents collection
@@ -70,6 +56,20 @@ var indexCollection = function(db, callback) {
   );
 };
 
+var insertDocuments = function(db, callback) {
+  // Get the documents collection
+  var collection = db.collection('documents');
+  // Insert some documents
+  collection.insertMany([
+    {a : 1}, {a : 2}, {a : 3}
+  ], function(err, result) {
+    assert.equal(err, null);
+    assert.equal(3, result.result.n);
+    assert.equal(3, result.ops.length);
+    console.log("Inserted 3 documents into the collection");
+    callback(result);
+  })
+}
 
 app.get('/', function (req, res) {
    // Use connect method to connect to the server
@@ -77,7 +77,7 @@ app.get('/', function (req, res) {
 	assert.equal(null, err);
 	console.log("Connected successfully to db");
 
-  //insertDocuments(db, function() {
+  
     //updateDocument(db, function() {
       //removeDocument(db, function() {
         //indexCollection(db, function() {
@@ -94,18 +94,25 @@ app.get('/', function (req, res) {
   //});    res.end( data );
    });
 })
-/*
+
 app.post('/addUser', function (req, res) {
    // First read existing users.
-   fs.readFile( __dirname + "/public/" + "users.json", 'utf8', function (err, data) {
-       data = JSON.parse( data );
-       data["user4"] = user["user4"];
-       console.log( data );
-       res.end( JSON.stringify(data));
-   });
+	//data = JSON.parse( data );
+	MongoClient.connect(url, function(err, db) {
+		assert.equal(null, err);
+		console.log("Connected successfully to db");
+      
+		insertDocuments(db, function() {
+		       
+       //data["user4"] = user["user4"];
+       //res.end( JSON.stringify(data));
+	 	    	res.end("ADDED DATA ");
+			db.close();
+   		});
+	});
 })
 
-
+/*
 app.get('/:id', function (req, res) {
    // First read existing users.
    fs.readFile( __dirname + "/public/" + "users.json", 'utf8', function (err, data) {
@@ -116,7 +123,7 @@ app.get('/:id', function (req, res) {
    });
 })
 
-app.delete('/deleteUser', function (req, res) {
+app.delete('/deleteUser', function (req, regis) {
 
    // First read existing users.
    fs.readFile( __dirname + "/public/" + "users.json", 'utf8', function (err, data) {
