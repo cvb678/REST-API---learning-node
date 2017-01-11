@@ -15,7 +15,7 @@ var documents;
 var dataSchema = new Schema({
   id: { type: Number, index: true, unique: true },
   idSensor:  Number,
-  date: String,
+  date: Date,
   sensor: String
 }, { timestamps: { createdAt: 'created_at' } });
 
@@ -66,8 +66,19 @@ app.post('/add', function (req, res) {
     console.log("Connected successfully to db");
     console.dir(req.body);
 
+    var dateAdd = new Date();
+
+    dateAdd.setDate(req.body.date.substring(0,2));
+    dateAdd.setMonth(parseInt(req.body.date.substring(3,5))-1);
+    dateAdd.setYear(req.body.date.substring(6,10)); 
+    dateAdd.setHours(parseInt(req.body.date.substring(12,14))+1);
+    dateAdd.setMinutes(req.body.date.substring(15,17));   
+    dateAdd.setSeconds(req.body.date.substring(18,20));
+    dateAdd.setMilliseconds(0);	    
+    console.log(dateAdd.toISOString());
+
     var col = db.collection('Data');
-    col.insertOne({"id": req.body.id, "date": req.body.date, "sensor": req.body.sensor}, 	function(err, r) {
+    col.insertOne({"id": req.body.id, "date": dateAdd.toIsoString(), "sensor": req.body.sensor}, 	function(err, r) {
          assert.equal(null, err);
          assert.equal(1, r.insertedCount);
         
