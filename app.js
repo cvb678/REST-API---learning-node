@@ -48,10 +48,10 @@ var findByID = function(db, ID, callback) {
   var collection = db.collection('Data');
   // Find some documents
   console.log("Looking for id: " + ID);
-  collection.find({"id": parseInt(ID)}, {sort: {date: -1}, limit: 1},
+  collection.find({"id": parseInt(ID)}, {sort: {date: -1}, limit: 1}).toArray(
    function(err, docs) {
     assert.equal(err, null);
-    docs.sort();
+    docs.sort()
     callback(docs);
   });
 }
