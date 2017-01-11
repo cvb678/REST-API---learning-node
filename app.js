@@ -6,11 +6,11 @@ var express = require('express');
 var app = express();
 var bodyParser = require('body-parser');
 app.use(bodyParser.json()); // for parsing application/json
-var multer = require('multer'); // v1.0.5
-var upload = multer(); // for parsing multipart/form-data
+
 // Connection URL
 var url = 'mongodb://localhost:27017/myproject';
 var documents;
+
 
 var dataSchema = new Schema({
   id: { type: Number, index: true, unique: true },
@@ -27,8 +27,8 @@ var findDocuments =  function(db, callback) {
   // Find some documents
   collection.find({}).toArray(function(err, docs) {
     assert.equal(err, null);
-    //console.log("Found the following records");
-    //console.log(docs)
+    console.log("Found the following records");
+    console.log(docs)
     callback(docs);
 
   });
@@ -60,27 +60,21 @@ app.get('/', function (req, res) {
   });
 })
 
-app.post('/add', upload.array(), function (req, res) {
+app.post('/add', function (req, res) {
   MongoClient.connect(url, function(err, db) {
-  assert.equal(null, err);
-  console.log("Connected successfully to db");
-  console.log(req.body);
+    assert.equal(null, err);
+    console.log("Connected successfully to db");
+    console.dir(req.body);
 
-  /*insertDocuments(db, function() {		       
-       //data["user4"] = user["user4"];
-       //res.end( JSON.stringify(data));
-    res.end("ADDED DATA ");
-    db.close();
-
-
-var newData = new Data ({idSensor: 1, date: '09/01/2017, 16:08:24', sensor: 'Pokoj1'});
-
-newData.save(function(err) {
-  if (err) return hadleError(err);
-});
-
-   		});*/
-	});
+    var col = db.collection('Data');
+    col.insertOne({"id": req.body.id, "date": req.body.date, "sensor": req.body.sensor}, 	function(err, r) {
+         assert.equal(null, err);
+         assert.equal(1, r.insertedCount);
+        
+    	 res.end('ADDED');
+    	 db.close();
+  	});
+    });
 })
 
 
