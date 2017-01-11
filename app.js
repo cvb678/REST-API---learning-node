@@ -48,12 +48,23 @@ var findByID = function(db, ID, callback) {
   var collection = db.collection('Data');
   // Find some documents
   console.log("Looking for id: " + ID);
-  collection.find({"id": parseInt(ID)}, {sort: {date: -1}, limit: 1}).toArray( 
+  collection.find({"id": parseInt(ID)}, {sort: {date: -1}, limit: 1},
    function(err, docs) {
+    assert.equal(err, null);
+    docs.sort();
+    callback(docs);
+  });
+}
+
+var getIDs = function(db, callback) {
+  var collection = db.collection('Data');
+  // Find some documents
+  collection.distinct("id", function(err, docs) {
     assert.equal(err, null);
     callback(docs);
   });
 }
+
 
 app.get('/', function (req, res) {
   MongoClient.connect(url, function(err, db) {
@@ -131,6 +142,19 @@ app.get('/searchID/:id', function (req, res) {
     console.log("Connected successfully to db");
     
     findByID(db, req.params['id'], function(docs) {
+      console.log(docs);            
+      res.end(JSON.stringify(docs));
+      db.close();
+    });
+  });
+})
+
+app.get('/IDs', function (req, res) {
+  MongoClient.connect(url, function(err, db) {
+    assert.equal(null, err);
+    console.log("Connected successfully to db");
+    
+    getIDs(db, function(docs) {
       console.log(docs);            
       res.end(JSON.stringify(docs));
       db.close();
