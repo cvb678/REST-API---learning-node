@@ -9,8 +9,6 @@ app.use(bodyParser.json()); // for parsing application/json
 
 // Connection URL
 var url = 'mongodb://localhost:27017/myproject';
-var documents;
-
 
 var dataSchema = new Schema({
   id: { type: Number, index: true, unique: true },
@@ -30,7 +28,19 @@ var findDocuments =  function(db, callback) {
     console.log("Found the following records");
     console.log(docs)
     callback(docs);
+  });
+}
 
+var findByDate = function(db, findDate, callback) {
+  var collection = db.collection('Data');
+  // Find some documents
+  console.log("searching from date: " + findDate);
+  
+  collection.find({
+      "date" : {"$gte": findDate}
+    }).toArray(function(err, docs) {
+    assert.equal(err, null);
+    callback(docs);
   });
 }
 
@@ -67,7 +77,6 @@ app.post('/add', function (req, res) {
     console.dir(req.body);
 
     var dateAdd = new Date();
-
     dateAdd.setDate(req.body.date.substring(0,2));
     dateAdd.setMonth(parseInt(req.body.date.substring(3,5))-1);
     dateAdd.setYear(req.body.date.substring(6,10)); 
@@ -78,16 +87,15 @@ app.post('/add', function (req, res) {
     console.log(dateAdd.toISOString());
 
     var col = db.collection('Data');
-    col.insertOne({"id": req.body.id, "date": dateAdd.toIsoString(), "sensor": req.body.sensor}, 	function(err, r) {
-         assert.equal(null, err);
-         assert.equal(1, r.insertedCount);
-        
-    	 res.end('ADDED');
-    	 db.close();
-  	});
+    col.insertOne(
+      {"id": req.body.id, "date": dateAdd.toISOString(), "sensor": req.body.sensor},       	 function(err, r) {
+        assert.equal(null, err);
+        assert.equal(1, r.insertedCount);
+    	res.end('ADDED');
+    	db.close();
     });
+  });
 })
-
 
 app.get('/deleteAll', function (req, res) {
   MongoClient.connect(url, function(err, db) {
@@ -106,10 +114,24 @@ app.get('/deleteAll', function (req, res) {
   res.end("Deleted all records");
 })
 
+app.get('/search', function (req, res) {
+  MongoClient.connect(url, function(err, db) {
+    assert.equal(null, err);
+    console.log("Connected successfully to db");
+    
+    findByDate(db, new Date(2013, 10, 01, 00, 00,00).toISOString(), function(docs) {
+      console.log(docs);            
+      res.end(JSON.stringify(docs));
+      db.close();
+    });
+  });
+})
+
 
 var server = app.listen(8081, function () {
   var host = server.address().address
   var port = server.address().port
   console.log("Server listening at http://%s:%s", host, port)
 });
+
 
