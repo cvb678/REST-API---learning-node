@@ -35,7 +35,7 @@ var findByDate = function(db, findDate, callback) {
   var collection = db.collection('Data');
   // Find some documents
   console.log("searching from date: " + findDate);
-  
+
   collection.find({
       "date" : {"$gte": findDate}
     }).toArray(function(err, docs) {
@@ -44,20 +44,18 @@ var findByDate = function(db, findDate, callback) {
   });
 }
 
-var removeDocument = function(db, callback) {
-  // Get the documents collection
+var findByID = function(db, ID, callback) {
   var collection = db.collection('Data');
-  // Insert some documents
-  collection.deleteOne({'a': 2 }, function(err, result) {
+  // Find some documents
+  console.log("Looking for id: " + ID);
+  collection.find({"id": parseInt(ID)}, {sort: {date: -1}, limit: 1}).toArray( 
+   function(err, docs) {
     assert.equal(err, null);
-    assert.equal(1, result.result.n);
-    console.log("Removed the document with the field a equal to 3");
-    callback(result);
-  });    
+    callback(docs);
+  });
 }
 
 app.get('/', function (req, res) {
-
   MongoClient.connect(url, function(err, db) {
     assert.equal(null, err);
     console.log("Connected successfully to db");
@@ -114,12 +112,25 @@ app.get('/deleteAll', function (req, res) {
   res.end("Deleted all records");
 })
 
-app.get('/search', function (req, res) {
+app.get('/searchDate/:date', function (req, res) {
   MongoClient.connect(url, function(err, db) {
     assert.equal(null, err);
     console.log("Connected successfully to db");
     
-    findByDate(db, new Date(2013, 10, 01, 00, 00,00).toISOString(), function(docs) {
+    findByDate(db, req.params['date'], function(docs) {
+      console.log(req.body);            
+      res.end(JSON.stringify(docs));
+      db.close();
+    });
+  });
+})
+
+app.get('/searchID/:id', function (req, res) {
+  MongoClient.connect(url, function(err, db) {
+    assert.equal(null, err);
+    console.log("Connected successfully to db");
+    
+    findByID(db, req.params['id'], function(docs) {
       console.log(docs);            
       res.end(JSON.stringify(docs));
       db.close();
@@ -133,5 +144,3 @@ var server = app.listen(8081, function () {
   var port = server.address().port
   console.log("Server listening at http://%s:%s", host, port)
 });
-
-
